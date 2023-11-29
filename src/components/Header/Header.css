@@ -1,0 +1,9 @@
+/*--- RESPONSIVE ---*/
+
+/* BREAKPOINT 575px */
+@media screen and (max-width: 575px) {
+    .custom-navbar-brand {
+        background-color: brown;
+    }
+
+}
