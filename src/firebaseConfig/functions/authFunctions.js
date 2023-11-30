@@ -1,30 +1,41 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithRedirect
+  } from 'firebase/auth';
+  import { app } from '../firebase';
+  import { addDoc, collection, doc, getDocs, getDoc, where, query } from 'firebase/firestore';
+  import { db } from '../firebase';
+  import { useState } from 'react';
+  import { useNavigate } from 'react-router-dom';
 
+
+
+  const auth = getAuth(app);
   
-  
-  // Función para guardar la información del usuario en el estado userData
-  const saveUserData = (userData) => {
-    setUserData(userData);
-  };
+  export const useAuthFunctions = () => {
+    const [user, setUser] = useState(null);
+    const [userData, setUserData] = useState(null);
+    const navigate = useNavigate();
 
-   // Función para guardar la información del usuario en localStorage
-   const saveUserDataToLocal = (userData) => {
-    localStorage.setItem('userData', JSON.stringify(userData));
-  };
-
-  // Función para obtener la información del usuario desde localStorage
-  const getUserDataFromLocal = () => {
+    
+// Función para obtener la información del usuario desde localStorage
+ const getUserDataFromLocal = () => {
     const userDataFromLocal = JSON.parse(localStorage.getItem('userData'));
     setUserData(userDataFromLocal);
   };
 
-  // Función para eliminar la información del usuario de localStorage
-  const removeUserDataFromLocal = () => {
+// Función para eliminar la información del usuario de localStorage
+ const removeUserDataFromLocal = () => {
     localStorage.removeItem('userData');
   };
 
-  // Función para iniciar sesión con correo electrónico y contraseña
-export const loginWithEmailAndPassword = async (email, password) => {
+// Función para iniciar sesión con correo electrónico y contraseña
+ const loginWithEmailAndPassword = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setUser(userCredential.user);
@@ -40,9 +51,8 @@ export const loginWithEmailAndPassword = async (email, password) => {
     }
   };
 
-
-  // Función para registrar un nuevo usuario y agregarlo a la colección "users"
-export const registerWithEmailAndPassword = async (email, password) => {
+// Función para registrar un nuevo usuario y agregarlo a la colección "users"
+ const registerWithEmailAndPassword = async (email, password) => {
     try {
       // Registrar al usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -81,8 +91,8 @@ export const registerWithEmailAndPassword = async (email, password) => {
     }
   };
 
-  // Función para iniciar sesión con Google
-export const loginWithGoogle = async () => {
+// Función para iniciar sesión con Google
+ const loginWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithRedirect(auth, provider);
@@ -92,8 +102,8 @@ export const loginWithGoogle = async () => {
     }
   };
 
-  // Función para cerrar sesión
-export const logout = async () => {
+// Función para cerrar sesión
+ const logout = async () => {
     try {
       await signOut(auth);
       setUser(null);
@@ -107,7 +117,8 @@ export const logout = async () => {
     }
   };
 
-export const fetchUserProfile = async (userId) => {
+  
+ const fetchUserProfile = async (userId) => {
     try {
       const userCollectionRef = collection(db, 'users');
       const querySnapshot = await getDocs(query(userCollectionRef, where('userId', '==', userId)));
@@ -124,26 +135,21 @@ export const fetchUserProfile = async (userId) => {
       return null;
     }
   };
-  // Comprueba si el usuario está autenticado al montar el componente
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-      if (user) {
-        // Si el usuario está autenticado, obtenemos su perfil
-        fetchUserProfile(user.uid).then((userProfile) => {
-          if (userProfile) {
-            setUserData(userProfile);
-          } else {
-            console.log('El perfil del usuario no existe en Firestore');
-          }
-        });
-      } else {
-        // Si el usuario no está autenticado, eliminamos su perfil del estado userData
-        setUserData(null);
-      }
-    });
 
-    // Devuelve una función de limpieza para cancelar la suscripción al desmontar el componente
-    return () => unsubscribe();
-  }, []);
+  return {
+    user,
+    userData,
+    getUserDataFromLocal,
+    removeUserDataFromLocal,
+    loginWithEmailAndPassword,
+    registerWithEmailAndPassword,
+    loginWithGoogle,
+    logout,
+    fetchUserProfile
+  };
+  };
+  
+  export default useAuthFunctions;
+
+
+
