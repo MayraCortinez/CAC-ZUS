@@ -10,13 +10,24 @@ import { useState } from 'react';
 
 const ListProduct = () => {
   const { confirmDelete } = usePrivate();
-  const { productos, getProductos } = useAuth();
+  const { getProducts } = useAuth();
 
+  const [products, setProducts] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState(null); // Estado para el ID del producto seleccionado
 
   useEffect(() => {
-    getProductos();
-  }, []);
+    const fetchProducts = async () => {
+      try {
+        const productsData = await getProducts();
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+      }
+    };
+
+    fetchProducts();
+  }, [getProducts]);
+
 
   const handleOpenEditModal = (productId) => {
     setSelectedProductId(productId); // Actualiza el ID del producto seleccionado
@@ -39,35 +50,36 @@ const ListProduct = () => {
           <Table className='p-3 mt-5'>
             <thead>
               <tr>
+                <th>Marca</th>
                 <th>Modelo</th>
                 <th>Talle</th>
-                <th>Color</th>
                 <th>Precio</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {productos?.map((producto) => (
-                <tr key={producto.id}>
-                  <td>{producto.marca || ''}</td>
-                  <td>{producto.modelo || ''}</td>
-                  <td>{producto.talle || ''}</td>
-                  <td>{producto.precio || ''}</td>
+              {products?.map((product) => (
+                <tr key={product.id}>
+                  <td>{product.marca || ''}</td>
+                  <td>{product.modelo || ''}</td>
+                  <td>{product.talle || ''}</td>
+                  <td>{product.precio || ''}</td>
                   <td>
                     <Link
                       to="#"
                       className="btn btn"
-                      onClick={() => handleOpenEditModal(producto.id)}
+                      onClick={() => handleOpenEditModal(product.id)}
                     >
                       <img
                         width="28"
                         height="28"
                         src="https://img.icons8.com/dotty/80/create-new.png"
                         alt="create-new"
+                        title="Editar"
                       />
                     </Link>
                     <button
-                      onClick={() => handleDeleteProduct(producto.id)}
+                      onClick={() => handleDeleteProduct(product.id)}
                       className="btn btn-dangerous hover"
                     >
                       <img
@@ -75,6 +87,7 @@ const ListProduct = () => {
                         height="28"
                         src="https://img.icons8.com/wired/64/000000/filled-trash.png"
                         alt="filled-trash"
+                        title='Eliminar'
                       />
                     </button>
                   </td>

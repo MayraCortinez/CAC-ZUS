@@ -8,12 +8,27 @@ import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../LoadingSpinner'
 
 function ProductList() {
-  const { productos, getProductos } = useAuth();
+  const { getProducts } = useAuth();
   let [loading, setLoading] = useState(true);
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsData = await getProducts();
+        setProducts(productsData);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+      }
+    };
+
+    fetchProducts();
+  }, [getProducts]);
 
 
   useEffect(() => {
-    getProductos();
+    getProducts();
     setTimeout(()=> {
       setLoading(false);
     }, 4000);
@@ -21,7 +36,7 @@ function ProductList() {
 
   const storage = getStorage();
 
-  productos.map(async prod => {
+  products.map(async prod => {
     const storageRef = ref(storage, `${prod.img}`);
     const urlImg = await getDownloadURL(storageRef);
     console.log(urlImg);
@@ -33,18 +48,18 @@ function ProductList() {
         {loading ?
           (<LoadingSpinner style={{ height: "550px" }} className='text-primary d-flex align-items-center justify-content-center'/>)
           :
-          (productos?.map((producto) => (
-            <Col key={producto.id} className="pt-5 px-3">
+          (products?.map((product) => (
+            <Col key={product.id} className="pt-5 px-3">
               <ProductCard
-                id={producto.id}
-                color={producto.color}
-                descripcion={producto.descripcion}
-                detalle={producto.detalle}
-                img={producto.img}
-                marca={producto.marca}
-                modelo={producto.modelo}
-                precio={producto.precio}
-                talle={producto.talle}
+                id={product.id}
+                color={product.color}
+                descripcion={product.descripcion}
+                detalle={product.detalle}
+                img={product.img}
+                marca={product.marca}
+                modelo={product.modelo}
+                precio={product.precio}
+                talle={product.talle}
               />
             </Col>
           )))

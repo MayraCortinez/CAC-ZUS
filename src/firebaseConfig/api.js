@@ -10,10 +10,10 @@ import {
   } from "firebase/firestore";
   import { db } from "./firebase";
   
-  const collectionName = "Productos";
+  const collectionName = "productos";
   
- /*  export const saveProducto = (newProduct) =>
-    addDoc(collection(db, collectionName), newProducto); */
+ export const saveProducto = (newProduct) =>
+    addDoc(collection(db, collectionName), newProduct); 
   
   export const updateProduct = (id, updatedFields) =>
     updateDoc(doc(db, collectionName, id), updatedFields);

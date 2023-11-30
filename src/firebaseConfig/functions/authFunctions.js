@@ -1,24 +1,7 @@
-
-import React, { createContext, useState, useEffect } from 'react';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
-import { app } from '../firebaseConfig/firebase';
-import { addDoc, collection, doc, getDocs, getDoc, where, query } from 'firebase/firestore';
-import { db } from '../firebaseConfig/firebase';
-import { useNavigate } from 'react-router-dom';
-import { getProducts, getProductById, formatPriceWithCommas } from '../firebaseConfig/functions/productFunctions'
 
-export const AuthContext = createContext();
-
-const AuthProvider = ({ children }) => {
-  const auth = getAuth(app);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState(null); // Estado para almacenar la información del usuario
-
-
-  const navigate = useNavigate();
-
-
+  
+  
   // Función para guardar la información del usuario en el estado userData
   const saveUserData = (userData) => {
     setUserData(userData);
@@ -41,7 +24,7 @@ const AuthProvider = ({ children }) => {
   };
 
   // Función para iniciar sesión con correo electrónico y contraseña
-  const loginWithEmailAndPassword = async (email, password) => {
+export const loginWithEmailAndPassword = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setUser(userCredential.user);
@@ -57,8 +40,9 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+
   // Función para registrar un nuevo usuario y agregarlo a la colección "users"
-  const registerWithEmailAndPassword = async (email, password) => {
+export const registerWithEmailAndPassword = async (email, password) => {
     try {
       // Registrar al usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -98,7 +82,7 @@ const AuthProvider = ({ children }) => {
   };
 
   // Función para iniciar sesión con Google
-  const loginWithGoogle = async () => {
+export const loginWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithRedirect(auth, provider);
@@ -109,7 +93,7 @@ const AuthProvider = ({ children }) => {
   };
 
   // Función para cerrar sesión
-  const logout = async () => {
+export const logout = async () => {
     try {
       await signOut(auth);
       setUser(null);
@@ -123,7 +107,7 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const fetchUserProfile = async (userId) => {
+export const fetchUserProfile = async (userId) => {
     try {
       const userCollectionRef = collection(db, 'users');
       const querySnapshot = await getDocs(query(userCollectionRef, where('userId', '==', userId)));
@@ -163,26 +147,3 @@ const AuthProvider = ({ children }) => {
     // Devuelve una función de limpieza para cancelar la suscripción al desmontar el componente
     return () => unsubscribe();
   }, []);
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        userData,
-        loginWithEmailAndPassword,
-        registerWithEmailAndPassword,
-        loginWithGoogle,
-        logout,
-        fetchUserProfile,
-        getProducts,
-        getProductById,
-        formatPriceWithCommas
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export default AuthProvider;
