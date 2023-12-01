@@ -17,6 +17,16 @@ Esta aplicación utiliza React con Vite como bundler para el desarrollo del fron
 Validaciones frontend con React-Bootstrap.
 Validaciones backend códigos de errores de Firebase.
 
+## Deploy
+
+https://reactjsgrupo5-43e69.web.app
+
+Intenta abrir la URL en una ventana de incógnito o limpiar la caché del navegador para asegurarte de que estás viendo la última versión desplegada.
+
+### Cuenta administrador:
+E-mail: mayra34@gmail.com    
+Password: 123456
+
 ## Configuración
 
 1. Clona este repositorio: `git clone https://github.com/MayraCortinez/CAC-ZUS.git`
