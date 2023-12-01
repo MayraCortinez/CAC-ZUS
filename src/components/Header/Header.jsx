@@ -10,14 +10,6 @@ const Header = () => {
     logout();
   };
 
-  const handleButtonClick = (e) => {
-    e.preventDefault();
-    const target = document.querySelector(e.target.getAttribute('href'));
-    target.scrollIntoView({
-      behavior: 'smooth',
-    });
-  };
-
   const userName = userData?.nombre || user?.email || '';
 
   return (
@@ -31,7 +23,7 @@ const Header = () => {
         <Navbar.Collapse className='align-items-center justify-content-end text-end' id="navbar">
           <Nav>
             <Nav.Link href="/productList">Productos</Nav.Link>
-            <Nav.Link href="#contacto" onClick={handleButtonClick}>Contacto</Nav.Link>
+            <Nav.Link href="#contacto">Contacto</Nav.Link>
             {!user ? (
               <Nav.Link href="/login">Iniciar sesión</Nav.Link>
             ) : (

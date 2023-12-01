@@ -1,12 +1,18 @@
 import React from 'react';
-
-//  Container, Row, Col de React Bootstrap
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Nav } from 'react-bootstrap';
 
 //Importa iconos
 import { BsInstagram } from "react-icons/bs";
 import { AiOutlineFacebook } from "react-icons/ai"; 
 import { FiTwitter } from "react-icons/fi";
+
+const handleButtonClick = (e) => {
+  e.preventDefault();
+  const target = document.querySelector(e.target.getAttribute('href'));
+  target.scrollIntoView({
+    behavior: 'smooth',
+  });
+};
 
 // Uso tema oscuro (bg="dark") y el texto blanco text white
 const Footer = () => {
@@ -23,7 +29,7 @@ const Footer = () => {
               <a href="/productList" className='text-white' style={{ textDecoration: "none", }}>Productos</a>
             </li>
             <li className='mt-2'>
-              <a href="/contacto" className='text-white' style={{ textDecoration: "none" }}>Contacto</a>
+              <a href="/#contacto" className='text-white' style={{ textDecoration: "none" }}>Contacto</a>
             </li>
           </ul>
         </Col>
