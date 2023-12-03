@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useFormik } from 'formik';
+import { productValidationSchema } from '../validation/productValidationSchema';
 
 export const PrivateContext = createContext();
 
@@ -17,18 +19,29 @@ export const PrivateProvider = ({ children }) => {
 
   const navigate = useNavigate();
 
-  const [marca, setMarca] = useState('');
-  const [modelo, setModelo] = useState('');
-  const [color, setColor] = useState('');
-  const [precio, setPrecio] = useState('');
-  const [talle, setTalle] = useState('');
-  const [detalle, setDetalle] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [id, setId] = useState('');
-  const [img, setImg] = useState(null);
-  const [previewImg, setPreviewImg] = useState(null);
-
   const productosCollection = collection(db, 'productos');
+
+  const formik = useFormik({
+    initialValues: {
+      marca: '',
+      modelo: '',
+      color: '',
+      precio: '',
+      talle: '',
+      detalle: '',
+      descripcion: '',
+      id: '',
+      img: null,
+    },
+    validationSchema: productValidationSchema,  // Usa el esquema de validación externo
+    onSubmit: async (values) => {
+      try {
+        await addProducto(values);
+      } catch (error) {
+        console.error('Error al agregar el producto:', error);
+      }
+    },
+  });
 
 
 //ELIMINAR PRODUCTO
@@ -62,67 +75,42 @@ export const PrivateProvider = ({ children }) => {
 
 
 //CREAR PRODUCTO
-  const newProduct = async (e) => {
-    e.preventDefault();
+const addProducto = async (values) => {
+  const { img, ...productoData } = values;
 
+  try {
     let urlImDesc = '';
     if (img) {
       const archivo = img;
       const refArchivo = ref(storage, `img/${archivo.name}`);
-      try {
-        await uploadBytes(refArchivo, archivo);
-        urlImDesc = await getDownloadURL(refArchivo);
-      } catch (error) {
-        console.error('Error al subir la imagen:', error);
-      }
+      await uploadBytes(refArchivo, archivo);
+      urlImDesc = await getDownloadURL(refArchivo);
     }
 
-    try {
-      await addDoc(productosCollection, {
-        marca: marca,
-        modelo: modelo,
-        color: color,
-        precio: precio,
-        talle: talle,
-        detalle: detalle,
-        descripcion: descripcion,
-        id: id,
-        img: urlImDesc,
-      });
+    await addDoc(productosCollection, {
+      ...productoData,
+      img: urlImDesc,
+    });
 
-      setMarca('');
-      setModelo('');
-      setColor('');
-      setPrecio('');
-      setTalle('');
-      setDetalle('');
-      setDescripcion('');
-      setId('');
-      setImg(null);
-      setPreviewImg(null);
+    // Limpiar el formulario después de agregar el producto
+    formik.resetForm();
 
-      MySwal.fire({
-        position: 'center',
-        icon: 'success',
-        title: 'El producto ha sido creado con éxito!',
-        showConfirmButton: false,
-        timer: 1500,
-      });
+    MySwal.fire({
+      position: 'center',
+      icon: 'success',
+      title: 'El producto ha sido creado con éxito!',
+      showConfirmButton: false,
+      timer: 1500,
+    });
 
-      // Opción en alert para seguir creando o ir a la página de lista de productos después de agregar el producto
-      navigate('/admin');
-    } catch (error) {
-      console.error('Error al agregar el producto:', error);
-    }
-  };
+    console.log(formik.errors); // Aquí imprimes los errores después de enviar el formulario
 
-  //IMÁGEN PREVIA
-  const fileHandler = (e) => {
-    const archivo = e.target.files[0];
-    setImg(archivo);
-    setPreviewImg(URL.createObjectURL(archivo));
-  };
 
+    navigate('/admin');
+  } catch (error) {
+    console.error('Error al agregar el producto:', error.message);
+  }
+};
 
 //EDITAR PRODUCTO
   const updateProduct = async (id, producto) => {
@@ -162,32 +150,20 @@ export const PrivateProvider = ({ children }) => {
   };
 
 
+  const fileHandler = (e) => {
+    const archivo = e.target.files[0];
+    formik.setFieldValue('img', archivo);
+   
+   
+  };
+
+
   return (
     <PrivateContext.Provider
       value={{
         deleteProducto,
         confirmDelete,
-        marca,
-        setMarca,
-        modelo,
-        setModelo,
-        color,
-        setColor,
-        precio,
-        setPrecio,
-        talle,
-        setTalle,
-        detalle,
-        setDetalle,
-        descripcion,
-        setDescripcion,
-        id,
-        setId,
-        img,
-        setImg,
-        previewImg,
-        setPreviewImg,
-        newProduct,
+        formik,
         fileHandler,
         updateProduct,
         getProductoById,

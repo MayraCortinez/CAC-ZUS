@@ -1,143 +1,80 @@
-import React, {useState } from 'react';
-import Form from 'react-bootstrap/Form';
-import {usePrivate} from '../../hooks/usePrivate';
-import { Container, Image, Stack } from 'react-bootstrap';
-
-
+import React from 'react';
+import { Form, Container, Image, Stack } from 'react-bootstrap';
+import { usePrivate } from '../../hooks/usePrivate';
+import { useFormik } from 'formik';
 
 const CreateProduct = () => {
   const {
-    marca,
-    setMarca,
-    modelo,
-    setModelo,
-    color,
-    setColor,
-    precio,
-    setPrecio,
-    talle,
-    setTalle,
-    detalle,
-    setDetalle,
-    descripcion,
-    setDescripcion,
-    id,
-    setId,
-    img,
-    setImg,
-    previewImg,
-    setPreviewImg,
-    newProduct,
+    formik,
     fileHandler,
   } = usePrivate();
 
   return (
-    <Container className='mx-auto p-5' style={{maxWidth: '520px', paddingTop: '6.5rem', textAlign:'center'}}>
+    <Container className='mx-auto p-5' style={{ maxWidth: '520px', paddingTop: '6.5rem', textAlign: 'center' }}>
       <Stack className='pt-5 pb-5 mb-3 mt-5'>
-            <h2 className='text-uppercase text-light mt-5'>Crear producto</h2>
-            <form onSubmit={newProduct} className="mt-3">
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="text"
-                        placeholder="Marca"
-                        value={marca}
-                        onChange={(e) => setMarca(e.target.value)}
-                    />
-                    <label htmlFor="floatingInputCustom">Marca</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="text"
-                        placeholder="Modelo"
-                        value={modelo}
-                        onChange={(e) => setModelo(e.target.value)}
-                    />
-                    <label htmlFor="floatingInputCustom">Modelo</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3 p-2">
-                    <Form.Control
-                    className=''
-                        type="color"
-                        id="exampleColorInput"
-                        placeholder="Color"
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                    />
-                    <label htmlFor="floatingInputCustom">Color</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="number"
-                        placeholder="Precio"
-                        value={precio}
-                        onChange={(e) => setPrecio(e.target.value)}
-                    />
-                    <label htmlFor="floatingInputCustom">Precio</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="number"
-                        placeholder="Talle"
-                        value={talle}
-                        onChange={(e) => setTalle(e.target.value)}
-                    />
-                    <label htmlFor="floatingInputCustom">Talle</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="text"
-                        placeholder="Detalle"
-                        value={detalle}
-                        onChange={(e) => setDetalle(e.target.value)}
-                    />
-                    <label htmlFor="floatingInputCustom">Detalle</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="text"
-                        placeholder="Descripción"
-                        value={descripcion}
-                        onChange={(e) => setDescripcion(e.target.value)}
-                    />
-                    <label htmlFor="floatingInputCustom">Descripción</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="number"
-                        placeholder="id"
-                        value={id}
-                        onChange={(e) => setId(parseInt(e.target.value))}
-                    />
-                    <label htmlFor="floatingInputCustom">Id</label>
-                </Form.Floating>
-                <Form.Floating className="mb-3">
-                    <Form.Control
-                        id="floatingInputCustom"
-                        type="file"
-                        placeholder="Imágen"
-                        onChange={fileHandler}
-                    />
-                    <label htmlFor="floatingInputCustom">Imágen</label>
-                </Form.Floating>
-                {/* Vista previa de la imagen */}
-                {previewImg && (
-                    <div className="mb-3 ">
-                        <Image className="rounded rounded-lg" src={previewImg} alt="Vista previa" roundedCircle style={{ maxWidth: '200px' }} />
-                    </div>
-                )}
-                <button type="submit" className="btn btn-primary mt-3">
-                    Agregar
-                </button>
-            </form>
-            </Stack>
-        </Container>
+        <h2 className='text-uppercase text-light mt-5'>Crear producto</h2>
+        <form onSubmit={formik.handleSubmit} className="mt-3">
+          {/* Resto del formulario utilizando el mismo patrón */}
+          {['marca', 'modelo', 'color', 'precio', 'talle', 'detalle', 'descripcion', 'id'].map((fieldName) => (
+            <Form.Floating key={fieldName} className="mb-3">
+              <Form.Control
+                id={fieldName}
+                type={
+                    fieldName === 'id' ? 'number' :
+                    fieldName === 'precio' ? 'number' :
+                    fieldName === 'talle' ? 'number' :
+                    fieldName === 'color' ? 'color' : 'text'
+                  }
+                placeholder={fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
+                {...formik.getFieldProps(fieldName)}
+              />
+              <Form.Label htmlFor={fieldName}>{fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}</Form.Label>
+              {formik.touched[fieldName] && formik.errors[fieldName] && (
+                <div className="error" style={{ color: 'white' }}>
+                  {formik.errors[fieldName]}
+                </div>
+              )}
+            </Form.Floating>
+          ))}
+
+<Form.Floating className="mb-3">
+  <Form.Control
+    id="img"
+    type="file"
+    accept="image/*"  // Asegúrate de tener esta línea para permitir imágenes
+    placeholder="Imagen"
+    onChange={(e) => {
+      formik.setFieldValue('img', e.currentTarget.files[0]);
+      fileHandler(e);
+    }}
+  />
+  <Form.Label htmlFor="img">Imagen</Form.Label>
+  {formik.touched.img && formik.errors.img && (
+    <div className="error" style={{ color: 'white' }}>
+      {formik.errors.img}
+    </div>
+  )}
+</Form.Floating>
+
+          {/* Vista previa de la imagen */}
+          {formik.values.img && (
+            <div className="mb-3">
+              <Image
+                className="rounded rounded-lg"
+                src={URL.createObjectURL(formik.values.img)}
+                alt="Vista previa"
+                roundedCircle
+                style={{ maxWidth: '200px' }}
+              />
+            </div>
+          )}
+
+          <button type="submit" className="btn btn-primary mt-3">
+            Agregar
+          </button>
+        </form>
+      </Stack>
+    </Container>
   );
 };
 
